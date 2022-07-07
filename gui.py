@@ -2,6 +2,8 @@ import tkinter as tk
 import tkinter.font as font
 from PIL import ImageTk, Image
 
+resources = "../resources/"
+
 def buttonAction(n):
     print(n)
 
@@ -61,7 +63,7 @@ class App(tk.Tk):
         confirma.grid(column=4, row=5, sticky="news", padx=(5,5), pady=(5,5))
 
     def showImage(self):
-        image = Image.open("exemplo.jpg")
+        image = Image.open("resources/exemplo.jpg")
         image = image.resize((300, 300))
         tkImage = ImageTk.PhotoImage(image)
         label1 = tk.Label(self, image=tkImage)
