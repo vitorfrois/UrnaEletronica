@@ -1,9 +1,9 @@
 class Candidate:
 
-    def __init__(self) -> None:
-        self.name = ""
-        self.number = -1
-        self.image = ""
+    def __init__(self, name, number, image) -> None:
+        self.name = name
+        self.number = number
+        self.image = image
         self.votes = 0
 
     def add_name(self, name) -> None:
