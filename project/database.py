@@ -4,11 +4,11 @@ from candidate import Candidate
 
 class Database:
 
-    def __init__(self) -> None:
-        self.conn = sqlite3.connect('../db/candidates.db')
+    def __init__(self, databaseName="election") -> None:
+        self.conn = sqlite3.connect('../db/' + databaseName + '.db')
         self.c = self.conn.cursor()
-        self.c.execute(""" CREATE TABLE IF NOT EXISTS candidates (name text, number integer, image text, votes integer) """)
-        self.numDatabase += 1
+        self.c.execute(" CREATE TABLE IF NOT EXISTS candidates (name text, number integer, image text, votes integer) ")
+        self.numDatabase = 1
 
     def insert_candidate(self, candidate):
         with self.conn:
@@ -24,7 +24,7 @@ class Database:
             
     def update_votes(self, candidate):
         with self.conn:
-            self.c.execute("""UPDATE candidates SET votes = :votes WHERE name = :name AND number = :number""", 
+            self.c.execute("UPDATE candidates SET votes = :votes WHERE name = :name AND number = :number", 
                 {'name': candidate.name,
                 'number': candidate.number,
                 'votes': candidate.votes})

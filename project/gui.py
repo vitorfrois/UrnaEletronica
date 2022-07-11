@@ -30,13 +30,13 @@ class App(tk.Tk):
         self.candidatesList = []
         #lula
         lula = Candidate()
-        lula.add_image("resources/lula.jpg")
+        lula.add_image("../resources/lula.jpg")
         lula.add_name("Lula")
         lula.add_number("13")
         self.candidatesList.append(lula)
         #bolsonaro
         bolsonaro = Candidate()
-        bolsonaro.add_image("resources/bolsonaro.jpg")
+        bolsonaro.add_image("../resources/bolsonaro.jpg")
         bolsonaro.add_name("Bolsonaro")
         bolsonaro.add_number("22")
         self.candidatesList.append(bolsonaro)
@@ -109,7 +109,7 @@ class App(tk.Tk):
     #cria o frame da imagem, que vai mostrar a imagem do candidato, seu nome e partido
     def createImageFrame(self):
         self.candidateName = tk.StringVar(self.image_frame)
-        self.candidateImagePath = tk.StringVar(self.image_frame, "resources/pixel.png")
+        self.candidateImagePath = tk.StringVar(self.image_frame, "../resources/pixel.png")
         self.candidateParty = tk.StringVar(self.image_frame, "")
         image = Image.open(self.candidateImagePath.get())
         image = image.resize((150, 150))
@@ -128,7 +128,7 @@ class App(tk.Tk):
             self.candidateImagePath.set(candidate.get_image())
             self.candidateName.set(candidate.get_name())
         else:
-            self.candidateImagePath.set("resources/pixel.png")
+            self.candidateImagePath.set("../resources/pixel.png")
             if(len(self.value) == 2):
                 self.candidateName.set("NÚMERO ERRADO")
             else:
