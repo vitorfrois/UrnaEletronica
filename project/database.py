@@ -5,7 +5,7 @@ from candidate import Candidate
 class Database:
 
     def __init__(self, databaseName="election") -> None:
-        self.conn = sqlite3.connect('../db/' + databaseName + '.db')
+        self.conn = sqlite3.connect('db/' + databaseName + '.db')
         self.c = self.conn.cursor()
         self.c.execute(" CREATE TABLE IF NOT EXISTS candidates (name text, number integer, image text, votes integer) ")
         self.numDatabase = 1

@@ -12,31 +12,41 @@ class App(tk.Tk):
         super().__init__()
                 
         #configurações da janela principal
-        self.geometry("600x400")
+        # self.geometry("600x400")
         self.title('Urna Eletrônica')
         self.resizable(0,0)
 
         #define font geral do projeto 
         self.font = font.Font(size=12)
-
         #definindo frames
-        self.pad_frame = tk.Frame(self, bg="black", width=250, height=400, pady=3, padx=1)
-        self.image_frame = tk.Frame(self, bg="white", width=450, height=400, pady=3, padx=1)
-        #posicionando frames
+        self.urna = tk.Frame(self, bg="white")
+        self.db_frame = tk.Frame(self)
+        self.db_frame.grid(column=0, row=0)
+        pages = {"db": self.db_frame, "urna": self.urna}
+        self.urna.grid()
+
+        # self.databaseFrame()
+        # self.db_frame.tkraise()
+
+        self.pad_frame = tk.Frame(self.urna, bg="black", width=250, height=400, pady=3, padx=1)
+        self.image_frame = tk.Frame(self.urna, width=450, height=400, pady=3, padx=1)
+        self.instructions_frame = tk.Frame(self.urna, height=40)
+        # posicionando frames
         self.pad_frame.grid(column=1, row = 0, sticky="news")
         self.image_frame.grid(column=0, row = 0, sticky="news")
+        self.instructions_frame.grid(column=0, row=1, columnspan=2, sticky="news")
         
         #adiciona alguns candidatos a lista para teste
         self.candidatesList = []
         #lula
         lula = Candidate()
-        lula.add_image("../resources/lula.jpg")
+        lula.add_image("resources/lula.jpg")
         lula.add_name("Lula")
         lula.add_number("13")
         self.candidatesList.append(lula)
         #bolsonaro
         bolsonaro = Candidate()
-        bolsonaro.add_image("../resources/bolsonaro.jpg")
+        bolsonaro.add_image("resources/bolsonaro.jpg")
         bolsonaro.add_name("Bolsonaro")
         bolsonaro.add_number("22")
         self.candidatesList.append(bolsonaro)
@@ -48,9 +58,12 @@ class App(tk.Tk):
         self.addMenu()
         self.create_buttons()
         self.createImageFrame()
+        self.db_frame.tkraise()
 
     #funçao que é chamada toda vez que um botao numerico é ativado
     def buttonAction(self, n):
+        if(len(self.value) >= 2):
+            return
         #atualiza o valor de value
         self.value += str(n)
         self.updateImageFrame()
@@ -60,15 +73,34 @@ class App(tk.Tk):
             if(candidate.get_number() == self.value):
                 self.updateImageFrame(candidate)
 
+        if(len(self.value) == 2):
+            self.showInstructions()
+        else:
+            self.destroyInstructions()
+
+
     #reseta value
     def corrigeButton(self):
         self.value = ""
         print(self.value)
         self.updateImageFrame()
+        self.destroyInstructions()
+
 
     #por enquanto não faz nada
     def confirmaButton(self):
-        print("confirma")
+        for candidate in self.candidatesList:
+            if(candidate.get_number() == self.value):
+                candidate.add_vote()
+        self.corrigeButton()
+
+    def brancoButton(self):
+        if(len(self.value) >= 2):
+            return
+        self.value = ""
+        self.showInstructions()
+        self.candidateName.set("VOTO EM BRANCO")
+        print("branco")
 
     #função que cria os botões 
     #pensando em como modularizar essa parte
@@ -99,40 +131,61 @@ class App(tk.Tk):
         numericButtons[9].grid(column=4, row=2, pady=5, sticky="w")
 
         #os botoes secundarios
-        branco = tk.Button(self.pad_frame, text='BRANCO', bg='white', fg='black', width=8, height=1)
+        branco = tk.Button(self.pad_frame, text='BRANCO', bg='white', fg='black', width=8, height=1, command=self.brancoButton)
         corrige = tk.Button(self.pad_frame, text='CORRIGE', bg='orange', fg='black', width=8, height=1, command=self.corrigeButton)
         confirma = tk.Button(self.pad_frame, text='CONFIRMA', bg='green', fg='black', width=8, height=2, command=self.confirmaButton)
         branco.grid(column=2, row=5, sticky="sew", padx=(5,5), pady=(5,5))
         corrige.grid(column=3, row=5, sticky="sew", padx=(5,5), pady=(5,5))
         confirma.grid(column=4, row=5, sticky="news", padx=(5,5), pady=(5,5))
 
+    def showInstructions(self):
+        self.text1 = tk.Label(self.instructions_frame, text="CONFIRMA para CONFIRMAR este voto")
+        self.text1.grid(column=0, row=0, sticky="w", padx=(5,5))
+        self.text2 = tk.Label(self.instructions_frame, text="CORRIGE para REINICIAR este voto")
+        self.text2.grid(column=0, row=1, sticky="w", padx=(5,5))
+    
+    def destroyInstructions(self):
+        try:
+            self.text1.destroy()
+            self.text2.destroy()
+        except:
+            print("Instruções ainda não foram criadas.")
+
     #cria o frame da imagem, que vai mostrar a imagem do candidato, seu nome e partido
     def createImageFrame(self):
         self.candidateName = tk.StringVar(self.image_frame)
-        self.candidateImagePath = tk.StringVar(self.image_frame, "../resources/pixel.png")
+        self.candidateImagePath = tk.StringVar(self.image_frame, "resources/pixel.png")
         self.candidateParty = tk.StringVar(self.image_frame, "")
+        self.candidatePartyName = tk.StringVar(self.image_frame, "")
         image = Image.open(self.candidateImagePath.get())
         image = image.resize((150, 150))
         tkImage = ImageTk.PhotoImage(image)
         imageLabel = tk.Label(self.image_frame, image=tkImage)
         imageLabel.image = tkImage
         imageLabel.grid(column = 0, row = 0, rowspan=6, padx=(5,5), pady=(5,5))
-        candidateNameLabel = tk.Label(self.image_frame, textvariable=self.candidateName)
-        candidateNameLabel.grid(column=0, row=6)
+        info1Label = tk.Label(self.image_frame, text="SEU VOTO PARA: ")
+        info1Label.grid(column=0, row=6, sticky="w", padx=(5,5))
         candidatePartyLabel = tk.Label(self.image_frame, textvariable=self.candidateParty)
-        candidatePartyLabel.grid(column=0, row=7)
+        candidatePartyLabel.grid(column=0, row=7, padx=(5,5))
+        candidateNameLabel = tk.Label(self.image_frame, textvariable=self.candidateName)
+        candidateNameLabel.grid(column=0, row=8, sticky="w", padx=(5,5))
+        candidatePartyName = tk.Label(self.image_frame, textvariable=self.candidatePartyName)
+        candidatePartyName.grid(column=0, row=9, sticky="w", padx=(5,5))
 
     #atualiza o frame do candidato
     def updateImageFrame(self, candidate:Candidate()=None):
         if(candidate != None):
+            self.candidateName.set("Nome: " + candidate.get_name())
             self.candidateImagePath.set(candidate.get_image())
-            self.candidateName.set(candidate.get_name())
+            self.candidatePartyName.set("Partido: " + candidate.get_name())
         else:
-            self.candidateImagePath.set("../resources/pixel.png")
+            self.candidateImagePath.set("resources/pixel.png")
             if(len(self.value) == 2):
                 self.candidateName.set("NÚMERO ERRADO")
+                self.candidatePartyName.set("VOTO NULO")
             else:
                 self.candidateName.set("")
+                self.candidatePartyName.set("");
 
         self.candidateParty.set(self.value)
         image = Image.open(self.candidateImagePath.get())
@@ -141,6 +194,8 @@ class App(tk.Tk):
         imageLabel = tk.Label(self.image_frame, image=tkImage)
         imageLabel.image = tkImage
         imageLabel.grid(column = 0, row = 0, rowspan=6, padx=(5,5), pady=(5,5))
+
+        
 
     #sistema de menu, mas por enquanto não há nada significativo
     def addMenu(self):
@@ -154,14 +209,69 @@ class App(tk.Tk):
 
         #menu de opções
         menu_options = tk.Menu(menubar, tearoff=0)
-        menu_options.add_command(label="Iniciar Votação", command=nada)        
+        menu_options.add_command(label="Iniciar Votação", command=self.urna.tkraise) 
+        menu_options.add_command(label="Inserir Candidato", command=self.db_frame.lift)        
+
         
         #adiciona todos menus ao menu principal
         menubar.add_cascade(label="Arquivo", menu=menu_file)
         menubar.add_cascade(label="Opções", menu=menu_options)
-        menubar.add_command(label="Sair", command=self.destroy)
+        menubar.add_command(label="Sair", command=self.db_frame.lift)
 
         self.config(menu=menubar)
+
+    def select_file():
+        filetypes = (
+            ('Image Files', '*.jpg'),
+            ('All files', '*.*')
+        )
+
+        filename = fd.askopenfilename(
+            title='Escolha a imagem do candidato',
+            initialdir='.',
+            filetypes=filetypes)
+
+    # def switchFrames(self, name):
+    #     page = pages[name]
+
+
+    def databaseFrame(self):
+        heading = tk.Label(self.db_frame, text="Inserção de candidatos", bg="light green")
+
+        # create a Name tk.label
+        name = tk.Label(self.db_frame, text="Nome: ", bg="light green")
+    
+        # create a Course tk.label
+        party = tk.Label(self.db_frame, text="Partido: ", bg="light green")
+    
+        # create a Semester tk.label
+        num = tk.Label(self.db_frame, text="Número: ", bg="light green")
+
+
+        # grid method is used for placing
+        # the widgets at respective positions
+        # in table like structure .
+        heading.grid(row=0, column=1)
+        name.grid(row=1, column=0)
+        party.grid(row=2, column=0)
+        num.grid(row=3, column=0)
+    
+        # create a text entry box
+        # for typing the information
+        name_field = tk.Entry(self.db_frame)
+        party_field = tk.Entry(self.db_frame)
+        num_field = tk.Entry(self.db_frame)
+    
+        # grid method is used for placing
+        # the widgets at respective positions
+        # in table like structure .
+        name_field.grid(row=1, column=1, ipadx="100")
+        party_field.grid(row=2, column=1, ipadx="100")
+        num_field.grid(row=3, column=1, ipadx="100")
+    
+        # create a Submit Button and place into the root window
+        submit = tk.Button(self.db_frame, text="Submit", fg="Black", bg="Red")
+        submit.grid(row=8, column=1)
 
 if __name__ == "__main__":
     app = App()
