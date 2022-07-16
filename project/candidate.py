@@ -28,4 +28,4 @@ class Candidate:
         return self.image
 
     def get_votes(self):
-        return self.total_votes
+        return self.votes

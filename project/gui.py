@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.font as font
 from tkinter import filedialog as fd
 from PIL import ImageTk, Image
+from tkinter import ttk
 
 from candidate import *
 
@@ -56,7 +57,7 @@ class UrnaFrame(tk.Frame):
 
     #adiciona um voto ao candidato com o número da urna
     def confirma_button(self):
-        if(len(self.value) >= 2):
+        if(len(self.value) > 2):
             return
         for candidate in candidatesList:
             if(candidate.get_number() == self.value):
@@ -261,6 +262,26 @@ class DBFrame(tk.Frame):
         submit.grid(row=5, column=1)
         db_info_label.grid(column=1, row=6, padx=(5,5))
 
+class VotesFrame(tk.Frame):
+    def __init__(self, container):
+        super().__init__(container)
+        self.grid(column=0, row=0, sticky="news")
+        self.table = ttk.Treeview(self)
+        self.table.grid()
+        self.table['columns'] = ('Candidato', 'Votos')
+        self.table.column("#0", width=0, stretch=tk.NO)
+        self.table.column("Candidato")
+        self.table.column("Votos")
+        self.table.heading("Candidato")
+        self.table.heading("Votos")
+    
+    def create_vote_frame(self):
+        self.table.delete(*self.table.get_children())
+        for candidate in candidatesList:
+            # string = candidate.get_name() + " = " + str(candidate.get_votes()) + "\n"
+            # print(string)
+            self.table.insert(parent='', index='end', text='', values=(candidate.get_name(), candidate.get_votes()))        
+
 class WelcomeFrame(tk.Frame):
     def __init__(self, container):
         super().__init__(container)
@@ -291,18 +312,23 @@ class GUI(tk.Tk):
         self.urna_frame.grid(column=0, row=0)
         self.db_frame = DBFrame(self)
         self.db_frame.grid(column=0, row=0, sticky="news")
+        self.votes_frame = VotesFrame(self)
+        self.votes_frame.grid(column=0, row=0, sticky="news")
         self.welcome_frame = WelcomeFrame(self)
         self.welcome_frame.grid(column=0, row=0, sticky="news")
 
         #adiciona o menu na janela principal 
-        self.addMenu()
+        self.add_menu()
 
         #adiciona candidatos para teste
         self.add_test_candidates()
-        
 
-    #sistema de menu, mas por enquanto não há nada significativo
-    def addMenu(self):
+    def show_votes(self):
+        self.votes_frame.create_vote_frame()
+        self.votes_frame.lift()
+
+    #sistema de menu
+    def add_menu(self):
         menubar = tk.Menu(self)
         
         #menu de gerenciamento de arquivos
@@ -315,7 +341,8 @@ class GUI(tk.Tk):
         menu_options = tk.Menu(menubar, tearoff=0)
         menu_options.add_command(label="Iniciar Votação", command=self.urna_frame.lift) 
         menu_options.add_command(label="Inserir Candidato", command=self.db_frame.lift)        
-
+        menu_options.add_command(label="Mostrar Votos", command=self.show_votes)        
+        
         
         #adiciona todos menus ao menu principal
         menubar.add_cascade(label="Arquivo", menu=menu_file)
@@ -338,6 +365,8 @@ class GUI(tk.Tk):
         bolsonaro.add_name("Bolsonaro")
         bolsonaro.add_number("22")
         candidatesList.append(bolsonaro)
+
+
 
 if __name__ == "__main__":
     app = GUI()
