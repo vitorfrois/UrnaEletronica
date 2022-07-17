@@ -29,3 +29,4 @@ class Candidate:
 
     def get_votes(self):
         return self.votes
+    

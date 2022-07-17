@@ -6,9 +6,7 @@ from tkinter import ttk
 
 from candidate import *
 
-candidatesList = []
-#define font geral do projeto 
-# font = font.Font(size=12)
+candidates_list = []
 
 def nada():
     pass
@@ -39,7 +37,7 @@ class UrnaFrame(tk.Frame):
         self.update_image_frame()
         print(self.value)
         #se houver um candidato com o valor atual, mostra sua foto e nome
-        for candidate in candidatesList:
+        for candidate in candidates_list:
             if(candidate.get_number() == self.value):
                 self.update_image_frame(candidate)
 
@@ -57,18 +55,21 @@ class UrnaFrame(tk.Frame):
 
     #adiciona um voto ao candidato com o número da urna
     def confirma_button(self):
-        if(len(self.value) > 2):
+        if(len(self.value) != 2):
             return
-        for candidate in candidatesList:
+        if(self.value != "00"):
+            global total_votes
+            total_votes += 1
+        for candidate in candidates_list:
             if(candidate.get_number() == self.value):
                 candidate.add_vote()
         self.corrige_button()
 
     #voto em branco
     def branco_button(self):
-        if(len(self.value) >= 2):
+        if(len(self.value) != 0):
             return
-        self.value = ""
+        self.value = "00"
         self.show_instructions()
         self.candidateName.set("VOTO EM BRANCO")
         print("branco")
@@ -199,7 +200,7 @@ class DBFrame(tk.Frame):
     def submit_candidate(self):
         num = self.num_field.get()
 
-        for candidate in candidatesList:
+        for candidate in candidates_list:
             if(candidate.get_number() == num):
                 self.db_info_label.set("Já existe um candidato com o número inserido.")
                 return
@@ -224,7 +225,7 @@ class DBFrame(tk.Frame):
         new_candidate.add_image(self.image_path)
         new_candidate.add_name(self.name_field.get())
         new_candidate.add_number(self.num_field.get())
-        candidatesList.append(new_candidate)
+        candidates_list.append(new_candidate)
         self.db_info_label.set("Candidato Inserido com Sucesso!")
         self.clear_entry()            
 
@@ -272,15 +273,20 @@ class VotesFrame(tk.Frame):
         self.table.column("#0", width=0, stretch=tk.NO)
         self.table.column("Candidato")
         self.table.column("Votos")
-        self.table.heading("Candidato")
-        self.table.heading("Votos")
+        self.table.heading("Candidato", text="Candidato")
+        self.table.heading("Votos", text="Votos")
+        global total_votes
+        total_votes = 0
     
     def create_vote_frame(self):
         self.table.delete(*self.table.get_children())
-        for candidate in candidatesList:
-            # string = candidate.get_name() + " = " + str(candidate.get_votes()) + "\n"
-            # print(string)
-            self.table.insert(parent='', index='end', text='', values=(candidate.get_name(), candidate.get_votes()))        
+        for candidate in candidates_list:
+            candidate_votes = candidate.get_votes()
+            if(total_votes != 0):
+                votes = str(candidate_votes) + " (" + str((candidate_votes/total_votes)*100) + "%)"
+            else:
+                votes = total_votes
+            self.table.insert(parent='', index='end', text='', values=(candidate.get_name(), votes))        
 
 class WelcomeFrame(tk.Frame):
     def __init__(self, container):
@@ -306,7 +312,6 @@ class GUI(tk.Tk):
         # self.geometry("600x400")
         self.title('Urna Eletrônica')
         self.resizable(0,0)
-
         #inicializa os frames
         self.urna_frame = UrnaFrame(self)
         self.urna_frame.grid(column=0, row=0)
@@ -358,13 +363,13 @@ class GUI(tk.Tk):
         lula.add_image("resources/lula.jpg")
         lula.add_name("Lula")
         lula.add_number("13")
-        candidatesList.append(lula)
+        candidates_list.append(lula)
         #bolsonaro
         bolsonaro = Candidate()
         bolsonaro.add_image("resources/bolsonaro.jpg")
         bolsonaro.add_name("Bolsonaro")
         bolsonaro.add_number("22")
-        candidatesList.append(bolsonaro)
+        candidates_list.append(bolsonaro)
 
 
 
