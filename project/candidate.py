@@ -1,3 +1,6 @@
+from shutil import ExecError
+
+
 class Candidate:
 
     def __init__(self) -> None:
@@ -5,18 +8,31 @@ class Candidate:
         self.number = -1
         self.image = ""
         self.votes = 0
+        self.party = ""
 
     def add_name(self, name) -> None:
-        self.name = name
+        if name.isalpha():
+            self.name = name
+        else:
+            raise Exception
 
     def add_number(self, number) -> None:
-        self.number = number
+        if number.isdigit():
+            self.number = number
+        else:
+            raise Exception
 
     def add_image(self, image) -> None:
         self.image = image
 
     def add_vote(self) -> None:
         self.votes += 1
+        
+    def add_party(self, party) -> None:
+        if party.isalpha():
+            self.party = party
+        else:
+            raise Exception
 
     def get_name(self):
         return self.name
@@ -29,4 +45,7 @@ class Candidate:
 
     def get_votes(self):
         return self.votes
+        
+    def get_party(self):
+        return self.party
     

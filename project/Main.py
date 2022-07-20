@@ -13,6 +13,11 @@ def open_election():
     # pego uma das eleições já criadas
     #   se achar, insiro minha senha
     #   abro o gui com a eleição certo
+
+ 
     pass
 
-def close_ele
+
+
+
+

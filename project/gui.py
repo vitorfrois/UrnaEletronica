@@ -6,6 +6,7 @@ from tkinter import ttk
 
 from candidate import *
 
+
 candidates_list = []
 
 def nada():
