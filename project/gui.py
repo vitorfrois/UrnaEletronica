@@ -253,7 +253,7 @@ class DBFrame(tk.Frame):
         self.name_field.delete(0, 'end')
         self.party_field.delete(0, 'end')
         self.num_field.delete(0, 'end')
-        self.cargo_field.delete(0, 'end')
+        self.cargo_field.set("")
         self.image_path = ""
         self.submit_text.set("Inserir")
 
@@ -321,7 +321,10 @@ class DBFrame(tk.Frame):
         self.name_field = tk.Entry(self)
         self.party_field = tk.Entry(self)
         self.num_field = tk.Entry(self)
-        self.cargo_field = tk.Entry(self) #add cargo
+        self.cargo_field = tk.StringVar()
+        self.cargo_cb = ttk.Combobox(self, textvariable=self.cargo_field) #add cargo
+        self.cargo_cb['values'] = ('Presidente', 'Governador', 'Deputado Federal', 'Deputado Estadual')
+        self.cargo_cb['state'] = 'readonly'
     
         self.submit_text = tk.StringVar(self, "Inserir")
         submit = tk.Button(self, textvariable=self.submit_text, command=self.submit_candidate)
@@ -338,7 +341,7 @@ class DBFrame(tk.Frame):
         self.name_field.grid(row=1, column=1, ipadx="100")
         self.party_field.grid(row=2, column=1, ipadx="100")
         self.num_field.grid(row=3, column=1, ipadx="100")
-        self.cargo_field.grid(row=4, column=1, ipadx="100") #add cargo field
+        self.cargo_cb.grid(row=4, column=1, sticky="w") #add cargo field
         browse_button.grid(row=5, column=1, sticky="w")
         submit.grid(row=6, column=1)
         db_info_label.grid(column=1, row=7, padx=(5,5))

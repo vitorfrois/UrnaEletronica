@@ -23,10 +23,7 @@ class Candidate:
     
     #adicionar cargo ao politico
     def add_cargo(self, cargo) -> None:
-        if cargo.isalpha():
-            self.cargo = cargo
-        else:
-            raise Exception
+        self.cargo = cargo #tirei o exception pq tava dando erro
 
     def add_image(self, image) -> None:
         self.image = image
@@ -35,10 +32,7 @@ class Candidate:
         self.votes += 1
         
     def add_party(self, party) -> None:
-        if party.isalpha():
-            self.party = party
-        else:
-            raise Exception
+        self.party = party
 
     def get_name(self):
         return self.name
