@@ -16,10 +16,7 @@ class Candidate:
             raise Exception
 
     def add_number(self, number) -> None:
-        if number.isdigit():
-            self.number = number
-        else:
-            raise Exception
+        self.number = number
     
     #adicionar cargo ao politico
     def add_cargo(self, cargo) -> None:
@@ -52,5 +49,8 @@ class Candidate:
     def get_cargo(self):
         return self.cargo
         
+    def __str__(self) -> str:
+        string = "Candidato à {}: {}, partido: {}, número: {}".format(self.cargo, self.name, self.party, self.number)
+        return string
 
 

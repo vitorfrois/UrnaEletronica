@@ -3,11 +3,14 @@ import tkinter.font as font
 from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 from tkinter import ttk
+from database import DatabaseElector, DatabaseCandidates
 
 from candidate import *
 
-
 candidates_list = []
+electors_list = []
+dbCandidates = DatabaseCandidates()
+dbElectors = DatabaseElector()
 
 def nada():
     pass
@@ -284,14 +287,9 @@ class DBFrame(tk.Frame):
                 self.db_info_label.set("O número do partido deve conter 2 algarismos.")
                 return
 
-        if(self.cargo_field.get() == 'Deputado'):
+        if(self.cargo_field.get() == 'Deputado Federal' or self.cargo_field.get() == 'Deputado Estadual'):
             if(len(num) != 4):
                 self.db_info_label.set("O número do partido deve conter 4 algarismos.")
-                return
-        
-        if(self.cargo_field.get() == 'Vereador'):
-            if(len(num) != 5):
-                self.db_info_label.set("O número do partido deve conter 5 algarismos.")
                 return
         
 
@@ -300,10 +298,12 @@ class DBFrame(tk.Frame):
         new_candidate.add_name(self.name_field.get())
         new_candidate.add_number(self.num_field.get())
         new_candidate.add_party(self.party_field.get()) #adicionando o partido
-        new_candidate.add_cargo(self.cargo_field.get()) #add cargo
+        new_candidate.add_cargo(self.cargo_field.get()) #add 
         candidates_list.append(new_candidate)
+
         self.db_info_label.set("Candidato Inserido com Sucesso!")
-        self.clear_entry()            
+        self.clear_entry()    
+
 
     #cria o frame da database
     def create_db_frame(self):
@@ -421,9 +421,9 @@ class GUI(tk.Tk):
         
         #menu de gerenciamento de arquivos
         menu_file = tk.Menu(menubar, tearoff=0)
-        menu_file.add_command(label="Novo", command=nada)
-        menu_file.add_command(label="Abrir", command=nada)
-        menu_file.add_command(label="Salvar", command=nada)    
+        menu_file.add_command(label="Novo", command=newElection)
+        menu_file.add_command(label="Abrir", command=openElection)
+        menu_file.add_command(label="Salvar", command=saveElection)    
 
         #menu de opções
         menu_options = tk.Menu(menubar, tearoff=0)
@@ -454,11 +454,33 @@ class GUI(tk.Tk):
         bolsonaro.add_number("22")
         candidates_list.append(bolsonaro)
 
+def newElection():
+    dbCandidates.remove_all_candidates()
+    dbElectors.remove_all_electors()
+    global candidates_list
+    candidates_list = []
+    global electors_list
+    electors_list = []
 
+def openElection():
+    newElection()
 
-if __name__ == "__main__":
-    app = GUI()
-    app.mainloop()        
+    global candidates_list
+    global electors_list
+
+    candidates_list = dbCandidates.candidates()
+    electors_list =  dbElectors.electors()
+
+def saveElection():
+    for candidate in candidates_list:
+        dbCandidates.insert_candidate(candidate)
+    print(dbCandidates.candidates())
+    for elector in electors_list:
+        dbElectors.insert_elector(elector)
+    print(dbElectors.electors())
+
+app = GUI()
+app.mainloop()            
 
 
 # canvas = tk.Canvas(root, width=300, height=600)

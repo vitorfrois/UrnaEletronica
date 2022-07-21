@@ -1,4 +1,3 @@
-
 class Elector:
 
     def __init__(self):
@@ -18,7 +17,8 @@ class Elector:
             return False
 
     def add_code(self, code):      
-        if code.isdigit():
-            self.code = code
-        else:
-            return False
+        self.code = code
+    
+    def __str__(self) -> str:
+        string = "Eleitor {}, cpf {}".format(self.name, self.code)
+        return string
