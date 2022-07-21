@@ -3,6 +3,7 @@ import tkinter.font as font
 from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 from tkinter import ttk
+import pygame
 
 from candidate import *
 
@@ -56,45 +57,29 @@ class UrnaFrame(tk.Frame):
 
     #adiciona um voto ao candidato com o número da urna
     def confirma_button(self):
+        pygame.mixer.init()
         global total_votes
-        if(self.candidateCargo.get() == 'Presidente'):
-            if(len(self.value) != 2):
-                return
-            if(self.value != "00"):
-                total_votes += 1
-            for candidate in candidates_list:
-                if(candidate.get_number() == self.value):
-                    candidate.add_vote()
-            self.corrige_button()
-        if(self.candidateCargo.get() == 'Governador'):
-            if(len(self.value) != 2):
-                return
-            if(self.value != "00"):
-                total_votes += 1
-            for candidate in candidates_list:
-                if(candidate.get_number() == self.value):
-                    candidate.add_vote()
-            self.corrige_button()
+        #if(self.candidateCargo.get() == 'Presidente' or self.candidateCargo.get() == 'Governador'):
+        if(len(self.value) != 2):
+            return
+        if(self.value != "00"):
+            total_votes += 1
+        for candidate in candidates_list:
+            if(candidate.get_number() == self.value):
+                candidate.add_vote()
+        self.corrige_button()
+        pygame.mixer.music.load("resources/som_urna.mp3")
+        pygame.mixer.music.play(loops=0)
 
-        if(self.candidateCargo.get() == 'Deputado'):
-            if(len(self.value) != 4):
-                return
-            if(self.value != "0000"):
-                total_votes += 1
-            for candidate in candidates_list:
-                if(candidate.get_number() == self.value):
-                    candidate.add_vote()
-            self.corrige_button()
-        
-        if(self.candidateCargo.get() == 'Vereador'):
-            if(len(self.value) != 5):
-                return
-            if(self.value != "00000"):
-                total_votes += 1
-            for candidate in candidates_list:
-                if(candidate.get_number() == self.value):
-                    candidate.add_vote()
-            self.corrige_button()
+        #if(self.candidateCargo.get() == 'Deputado Federal' or self.candidateCargo.get() == 'Deputado Estadual'):
+         #   if(len(self.value) != 4):
+          #      return
+           # if(self.value != "0000"):
+            #    total_votes += 1
+            #for candidate in candidates_list:
+             #   if(candidate.get_number() == self.value):
+                    #candidate.add_vote()
+            #self.corrige_button()
 
     #voto em branco
     def branco_button(self):
