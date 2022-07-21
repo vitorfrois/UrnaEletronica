@@ -228,7 +228,7 @@ class UrnaFrame(tk.Frame):
         imageLabel.image = tkImage
         imageLabel.grid(column = 0, row = 0, rowspan=6, padx=(5,5), pady=(5,5))
 
-class DBFrame(tk.Frame):
+class DBInsertFrame(tk.Frame):
     def __init__(self, container):
         super().__init__(container)
         self.grid(column=0, row=0, sticky="news")
@@ -346,6 +346,53 @@ class DBFrame(tk.Frame):
         submit.grid(row=6, column=1)
         db_info_label.grid(column=1, row=7, padx=(5,5))
 
+class DBRemoveFrame(tk.Frame):
+    def __init__(self, container):
+        super().__init__(container)
+        self.grid(column=0, row=0, sticky="news")
+        self.create_db_frame()
+
+    #apaga os campos
+    def clear_entry(self):
+        self.name_field.set("")
+
+    #tenta inserir o candidato com os dados detalhados na lista
+    def submit_candidate(self):
+
+        for candidate in candidates_list:
+            if candidate.get_name() == self.name_field:
+                candidates_list.remove(self.name_field)
+                self.db_info_label.set("Candidato Inserido com Sucesso!")
+        self.clear_entry()            
+
+    #cria o frame da database
+    def create_db_frame(self):
+        #label para mostrar informações
+        heading = tk.Label(self, text="Inserção de candidatos")
+        name = tk.Label(self, text="Nome: ")
+
+        #entry é utilizada para ler informações
+        self.name_field = tk.StringVar()
+        self.cargo_cb = ttk.Combobox(self, textvariable=self.name_field) #add cargo
+        candidates_name_list = []
+        for candidate in candidates_list:
+            candidates_name_list.append(candidate.get_name())
+        self.cargo_cb['values'] = tuple(candidates_name_list)
+        self.cargo_cb['state'] = 'readonly'
+    
+        self.submit_text = tk.StringVar(self, "Remover")
+        submit = tk.Button(self, textvariable=self.submit_text, command=self.submit_candidate)
+
+        self.db_info_label = tk.StringVar(self, "")
+        db_info_label = tk.Label(self, textvariable=self.db_info_label)
+
+        #posiciona os objetos na grade        
+        heading.grid(row=0, column=1)
+        name.grid(row=1, column=0)
+        self.cargo_cb.grid(row=1, column=1, ipadx="100")
+        submit.grid(row=6, column=1)
+        db_info_label.grid(column=1, row=7, padx=(5,5))
+
 class VotesFrame(tk.Frame):
     def __init__(self, container):
         super().__init__(container)
@@ -371,6 +418,8 @@ class VotesFrame(tk.Frame):
                 votes = total_votes
             self.table.insert(parent='', index='end', text='', values=(candidate.get_name() + ' (' + candidate.get_cargo() + ')', votes))        
 
+
+
 class WelcomeFrame(tk.Frame):
     def __init__(self, container):
         super().__init__(container)
@@ -395,11 +444,15 @@ class GUI(tk.Tk):
         # self.geometry("600x400")
         self.title('Urna Eletrônica')
         self.resizable(0,0)
+        #adiciona candidatos para teste
+        self.add_test_candidates()
         #inicializa os frames
         self.urna_frame = UrnaFrame(self)
         self.urna_frame.grid(column=0, row=0)
-        self.db_frame = DBFrame(self)
+        self.db_frame = DBInsertFrame(self)
         self.db_frame.grid(column=0, row=0, sticky="news")
+        self.db_remove_frame = DBRemoveFrame(self)
+        self.db_remove_frame.grid(column=0, row=0, sticky="news")
         self.votes_frame = VotesFrame(self)
         self.votes_frame.grid(column=0, row=0, sticky="news")
         self.welcome_frame = WelcomeFrame(self)
@@ -408,8 +461,6 @@ class GUI(tk.Tk):
         #adiciona o menu na janela principal 
         self.add_menu()
 
-        #adiciona candidatos para teste
-        self.add_test_candidates()
 
     def show_votes(self):
         self.votes_frame.create_vote_frame()
@@ -428,7 +479,8 @@ class GUI(tk.Tk):
         #menu de opções
         menu_options = tk.Menu(menubar, tearoff=0)
         menu_options.add_command(label="Iniciar Votação", command=self.urna_frame.lift) 
-        menu_options.add_command(label="Inserir Candidato", command=self.db_frame.lift)        
+        menu_options.add_command(label="Inserir Candidato", command=self.db_frame.lift)  
+        menu_options.add_command(label="Remover Candidato", command=self.db_remove_frame.lift)        
         menu_options.add_command(label="Mostrar Votos", command=self.show_votes)        
         
         
