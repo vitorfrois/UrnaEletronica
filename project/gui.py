@@ -56,15 +56,45 @@ class UrnaFrame(tk.Frame):
 
     #adiciona um voto ao candidato com o número da urna
     def confirma_button(self):
-        if(len(self.value) != 2):
-            return
-        if(self.value != "00"):
-            global total_votes
-            total_votes += 1
-        for candidate in candidates_list:
-            if(candidate.get_number() == self.value):
-                candidate.add_vote()
-        self.corrige_button()
+        global total_votes
+        if(self.candidateCargo.get() == 'Presidente'):
+            if(len(self.value) != 2):
+                return
+            if(self.value != "00"):
+                total_votes += 1
+            for candidate in candidates_list:
+                if(candidate.get_number() == self.value):
+                    candidate.add_vote()
+            self.corrige_button()
+        if(self.candidateCargo.get() == 'Governador'):
+            if(len(self.value) != 2):
+                return
+            if(self.value != "00"):
+                total_votes += 1
+            for candidate in candidates_list:
+                if(candidate.get_number() == self.value):
+                    candidate.add_vote()
+            self.corrige_button()
+
+        if(self.candidateCargo.get() == 'Deputado'):
+            if(len(self.value) != 4):
+                return
+            if(self.value != "0000"):
+                total_votes += 1
+            for candidate in candidates_list:
+                if(candidate.get_number() == self.value):
+                    candidate.add_vote()
+            self.corrige_button()
+        
+        if(self.candidateCargo.get() == 'Vereador'):
+            if(len(self.value) != 5):
+                return
+            if(self.value != "00000"):
+                total_votes += 1
+            for candidate in candidates_list:
+                if(candidate.get_number() == self.value):
+                    candidate.add_vote()
+            self.corrige_button()
 
     #voto em branco
     def branco_button(self):
@@ -160,14 +190,35 @@ class UrnaFrame(tk.Frame):
             self.candidatePartyName.set("Partido: " + candidate.get_party())
         else:
             self.candidateimage_path.set("resources/pixel.png")
-            if(len(self.value) == 2):
-                self.candidateName.set("NÚMERO ERRADO")
-                self.candidatePartyName.set("VOTO NULO")
-            else:
-                self.candidateName.set("")
-                self.candidatePartyName.set("") #tinha uma virgula aqui
-                self.candidateCargo.set("")
-                self.candidateNumber.set("")
+            if(self.candidateCargo.get() == 'Presidente' or self.candidateCargo.get() == 'Governador'):
+                if(len(self.value) == 2):
+                    self.candidateName.set("NÚMERO ERRADO")
+                    self.candidatePartyName.set("VOTO NULO")
+                else:
+                    self.candidateName.set("")
+                    self.candidatePartyName.set("") #tinha uma virgula aqui
+                    self.candidateCargo.set("")
+                    self.candidateNumber.set("")
+
+            if(self.candidateCargo.get() == 'Deputado'):
+                if(len(self.value) == 4):
+                    self.candidateName.set("NÚMERO ERRADO")
+                    self.candidatePartyName.set("VOTO NULO")
+                else:
+                    self.candidateName.set("")
+                    self.candidatePartyName.set("") #tinha uma virgula aqui
+                    self.candidateCargo.set("")
+                    self.candidateNumber.set("")
+            
+            if(self.candidateCargo.get() == 'Vereador'):
+                if(len(self.value) == 5):
+                    self.candidateName.set("NÚMERO ERRADO")
+                    self.candidatePartyName.set("VOTO NULO")
+                else:
+                    self.candidateName.set("")
+                    self.candidatePartyName.set("") #tinha uma virgula aqui
+                    self.candidateCargo.set("")
+                    self.candidateNumber.set("")
 
         self.candidateParty.set(self.value)
         image = Image.open(self.candidateimage_path.get())
@@ -228,9 +279,21 @@ class DBFrame(tk.Frame):
             self.db_info_label.set("O campo de número deve conter números.")
             return
 
-        if(len(num) != 2):
-            self.db_info_label.set("O número do partido deve conter 2 algarismos.")
-            return
+        if(self.cargo_field.get() == 'Presidente' or candidate.get_cargo() == 'Governador'):
+            if(len(num) != 2):
+                self.db_info_label.set("O número do partido deve conter 2 algarismos.")
+                return
+
+        if(self.cargo_field.get() == 'Deputado'):
+            if(len(num) != 4):
+                self.db_info_label.set("O número do partido deve conter 4 algarismos.")
+                return
+        
+        if(self.cargo_field.get() == 'Vereador'):
+            if(len(num) != 5):
+                self.db_info_label.set("O número do partido deve conter 5 algarismos.")
+                return
+        
 
         new_candidate = Candidate()
         new_candidate.add_image(self.image_path)
