@@ -86,7 +86,11 @@ class UrnaFrame(tk.Frame):
     def branco_button(self):
         if(len(self.value) != 0 or self.votes_count >= 4):
             return
-        self.value = "00"
+        
+        if(self.cargos_n[self.votes_count] == 2):
+            self.value = "00"
+        else:
+            self.value = "0000"
         self.show_instructions()
         self.candidateName.set("VOTO EM BRANCO")
         print("branco")
@@ -177,10 +181,20 @@ class UrnaFrame(tk.Frame):
             self.candidateimage_path.set(candidate.get_image())
             self.candidatePartyName.set("Partido: " + candidate.get_party())
         else:
-            self.candidateName.set("Nome: ")
-            self.candidateNumber.set("Número: " + self.value)
-            self.candidateimage_path.set("resources/pixel.png")
-            self.candidatePartyName.set("Número: ") #tinha uma virgula aqui
+            if(self.cargos_n[self.votes_count] == len(self.value)):
+                self.candidateNumber.set("Nome:" + self.value)
+                self.candidateName.set("NÚMERO ERRADO")
+                self.candidatePartyName.set("VOTO NULO")
+            else:
+                self.candidateName.set("Nome: ")
+                self.candidateNumber.set("Número: " + self.value)
+                self.candidateimage_path.set("resources/pixel.png")
+                self.candidatePartyName.set("Número: ") #tinha uma virgula aqui
+
+            #self.candidateName.set("Nome: ")
+            #self.candidateNumber.set("Número: " + self.value)
+            #self.candidateimage_path.set("resources/pixel.png")
+            #self.candidatePartyName.set("Número: ") #tinha uma virgula aqui
 
         self.candidateParty.set(self.value)
         image = Image.open(self.candidateimage_path.get())
