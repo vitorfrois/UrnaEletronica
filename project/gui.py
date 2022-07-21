@@ -303,7 +303,7 @@ class VotesFrame(tk.Frame):
                 votes = str(candidate_votes) + " (" + str((candidate_votes/total_votes)*100) + "%)"
             else:
                 votes = total_votes
-            self.table.insert(parent='', index='end', text='', values=(candidate.get_name(), votes))        
+            self.table.insert(parent='', index='end', text='', values=(candidate.get_name() + ' (' + candidate.get_cargo() + ')', votes))        
 
 class WelcomeFrame(tk.Frame):
     def __init__(self, container):
