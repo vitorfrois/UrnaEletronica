@@ -360,8 +360,10 @@ class DBRemoveFrame(tk.Frame):
     def submit_candidate(self):
 
         for candidate in candidates_list:
-            if candidate.get_name() == self.name_field:
-                candidates_list.remove(self.name_field)
+            print(candidate.get_name() + self.name_field.get())
+            if candidate.get_name() == self.name_field.get():
+                candidates_list.remove(candidate)
+                print(candidates_list)
                 self.db_info_label.set("Candidato Inserido com Sucesso!")
         self.clear_entry()            
 
