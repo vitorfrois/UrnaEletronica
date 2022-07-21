@@ -130,28 +130,34 @@ class UrnaFrame(tk.Frame):
         self.candidateName = tk.StringVar(self.image_frame)
         self.candidateimage_path = tk.StringVar(self.image_frame, "resources/pixel.png")
         self.candidateParty = tk.StringVar(self.image_frame, "")
+        self.candidateNumber = tk.StringVar(self.image_frame, "")
         self.candidatePartyName = tk.StringVar(self.image_frame, "")
+        self.candidateCargo = tk.StringVar(self.image_frame, "")
         image = Image.open(self.candidateimage_path.get())
         image = image.resize((150, 150))
         tkImage = ImageTk.PhotoImage(image)
         imageLabel = tk.Label(self.image_frame, image=tkImage)
         imageLabel.image = tkImage
         imageLabel.grid(column = 0, row = 0, rowspan=6, padx=(5,5), pady=(5,5))
-        info1Label = tk.Label(self.image_frame, text="SEU VOTO PARA: ")
+        info1Label = tk.Label(self.image_frame, textvariable=self.candidateCargo)
         info1Label.grid(column=0, row=6, sticky="w", padx=(5,5))
-        candidatePartyLabel = tk.Label(self.image_frame, textvariable=self.candidateParty)
-        candidatePartyLabel.grid(column=0, row=7, padx=(5,5))
+        #candidatePartyLabel = tk.Label(self.image_frame, textvariable=self.candidateParty)
+        #candidatePartyLabel.grid(column=0, row=7, padx=(5,5))
         candidateNameLabel = tk.Label(self.image_frame, textvariable=self.candidateName)
-        candidateNameLabel.grid(column=0, row=8, sticky="w", padx=(5,5))
+        candidateNameLabel.grid(column=0, row=7, sticky="w", padx=(5,5))
+        candidateNumberLabel = tk.Label(self.image_frame, textvariable=self.candidateNumber)
+        candidateNumberLabel.grid(column=0, row=8, sticky="w", padx=(5,5))
         candidatePartyName = tk.Label(self.image_frame, textvariable=self.candidatePartyName)
         candidatePartyName.grid(column=0, row=9, sticky="w", padx=(5,5))
 
     #atualiza o frame da imagem
     def update_image_frame(self, candidate:Candidate()=None):
         if(candidate != None):
+            self.candidateCargo.set("SEU VOTO PARA: " + candidate.get_cargo())
             self.candidateName.set("Nome: " + candidate.get_name())
+            self.candidateNumber.set("Numero: " + candidate.get_number())
             self.candidateimage_path.set(candidate.get_image())
-            self.candidatePartyName.set("Partido: " + candidate.get_name())
+            self.candidatePartyName.set("Partido: " + candidate.get_party())
         else:
             self.candidateimage_path.set("resources/pixel.png")
             if(len(self.value) == 2):
@@ -160,6 +166,8 @@ class UrnaFrame(tk.Frame):
             else:
                 self.candidateName.set("")
                 self.candidatePartyName.set("") #tinha uma virgula aqui
+                self.candidateCargo.set("")
+                self.candidateNumber.set("")
 
         self.candidateParty.set(self.value)
         image = Image.open(self.candidateimage_path.get())
