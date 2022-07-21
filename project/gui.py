@@ -3,6 +3,7 @@ import tkinter.font as font
 from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 from tkinter import ttk
+import pygame
 
 from candidate import *
 
@@ -60,6 +61,7 @@ class UrnaFrame(tk.Frame):
 
     #adiciona um voto ao candidato com o número da urna
     def confirma_button(self):
+        pygame.mixer.init()
         global total_votes
         if(self.cargos_n[self.votes_count] != len(self.value)):
             return
@@ -75,6 +77,8 @@ class UrnaFrame(tk.Frame):
         if(self.votes_count != 4):
             self.candidateCargo.set("SEU VOTO PARA: " + self.cargos[self.votes_count])
 
+        pygame.mixer.music.load("resources/som_urna.mp3")
+        pygame.mixer.music.play(loops=0)
 
     #voto em branco
     def branco_button(self):
