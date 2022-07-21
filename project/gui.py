@@ -6,10 +6,10 @@ from tkinter import ttk
 import pygame
 
 from candidate import *
-
+from elector import *
 
 candidates_list = []
-
+eleitor_list = []
 
 def nada():
     pass
@@ -33,6 +33,8 @@ class UrnaFrame(tk.Frame):
         self.votes_count = 0
         self.cargos = ("Presidente", "Governador", "Deputado Estadual", "Deputado Federal")
         self.cargos_n = (2, 2, 4, 4, -1)
+
+        self.newEleitor()
 
     #funçao que é chamada toda vez que um botao numerico é ativado
     def button_action(self, n):
@@ -190,8 +192,31 @@ class UrnaFrame(tk.Frame):
         
     def newEleitor(self):
         self.eleitor_frame = tk.Frame(self, pady=3, padx=1)
-        name = tk.Label(self, text="Nome: ")
-        
+        self.eleitor_frame.grid(column=0, row=0, columnspan=5, rowspan=5, sticky="news")
+        cpf = tk.Label(self.eleitor_frame, text="CPF: ")
+        self.cpf_field = tk.Entry(self.eleitor_frame)
+        submit = tk.Button(self.eleitor_frame, text="Entre", command=self.check_eleitor)
+        cpf.grid(column=0, row=0)
+        self.cpf_field.grid(column=0, row=1)
+        submit.grid(column=0, row=2)
+        self.labelElector = tk.Label(self.eleitor_frame, textvariable="")
+        self.labelElector.grid(column=0, row=3)
+
+
+    def check_eleitor(self):
+        for eleitor in eleitor_list:
+            print(eleitor.get_cpf())
+            print(self.cpf_field.get())
+            if eleitor.get_cpf() == int(self.cpf_field.get()):
+                if(eleitor.get_voted()):
+                     self.labelElector.set("Essa pessoa já votou.")
+                     return
+                eleitor_list.remove(eleitor)
+                self.pad_frame.lift()
+                self.image_frame.lift()
+                self.instructions_frame.lift()
+                eleitor.set_voted(True)
+                return
 
 class DBInsertFrame(tk.Frame):
     def __init__(self, container):
@@ -467,6 +492,10 @@ class GUI(tk.Tk):
         bolsonaro.add_name("Bolsonaro")
         bolsonaro.add_number("22")
         candidates_list.append(bolsonaro)
+        eleitor = Elector()
+        eleitor.add_cpf(12797125622)
+        eleitor.add_name("Vítor Fróis")
+        eleitor_list.append(eleitor)
 
 
 
