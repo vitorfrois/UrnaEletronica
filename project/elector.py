@@ -1,12 +1,9 @@
-from msilib.schema import Class
-import string
 
-
-class elector:
+class Elector:
 
     def __init__(self):
         self.name = ""
-        self.code = ""
+        self.code = 0
     
     def get_name(self):
         return self.name
@@ -18,11 +15,10 @@ class elector:
         if name.isalpha():
             self.name = name
         else:
-            # erro
+            return False
 
     def add_code(self, code):      
         if code.isdigit():
             self.code = code
         else:
-            # erro
-            
+            return False

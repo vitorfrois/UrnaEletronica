@@ -1,14 +1,13 @@
-from locale import DAY_2
 import sqlite3
 from candidate import Candidate
+from elector import Elector
 
-class Database:
+class DatabaseCandidates:
 
-    def __init__(self, databaseName="election") -> None:
-        self.conn = sqlite3.connect('db/' + databaseName + '.db')
+    def __init__(self, databaseName="candidates") -> None:
+        self.conn = sqlite3.connect('../db/' + databaseName + '.db')
         self.c = self.conn.cursor()
         self.c.execute(" CREATE TABLE IF NOT EXISTS candidates (name text, number integer, image text, votes integer) ")
-        self.numDatabase = 1
 
     def insert_candidate(self, candidate):
         with self.conn:
@@ -42,31 +41,76 @@ class Database:
     def close(self):
         self.conn.close()
 
-db = Database()
-cand1 = Candidate("Théozin", 9, "AAA")
-cand2 = Candidate("Maju", 16, "BBB")
-cand3 = Candidate("Vergaças", 3, "CCC")
+class DatabaseElector:
 
-db.remove_all_candidates()
-db.insert_candidate(cand1)
-db.insert_candidate(cand2)
-db.insert_candidate(cand3)
+    def __init__(self, databaseName="electors") -> None:
+        self.conn = sqlite3.connect('../db/' + databaseName + '.db')
+        self.c = self.conn.cursor()
+        self.c.execute(" CREATE TABLE IF NOT EXISTS electors (name text, code integer) ")
 
-print(db.candidates())
+    def insert_elector(self, elector):
+        with self.conn:
+            self.c.execute("INSERT INTO electors VALUES (:name, :code)",
+                {'name': elector.name,
+                'code': elector.code})
+    
+    def electors(self):
+        self.c.execute("SELECT * FROM electors")
+        return self.c.fetchall()
 
-db.remove_candidate(cand1)
+    def search_elector(self, elector):
+        self.c.execute("SELECT rowid FROM electors WHERE name = ? AND code = ?", (elector.name, elector.code))
+        data = self.c.fetchone()
+        if data is None:
+            print("num achei não uai")
+            return False
+        else:
+            print("achei")
+            return True
 
-print(db.candidates())
+    def remove_all_electors(self):
+        with self.conn:
+            self.c.execute("DELETE FROM electors")
 
-cand2.add_vote()
+    def close(self):
+        self.conn.close()
 
-db.update_votes(cand2)
+# db = DatabaseCandidates()
+# cand1 = Candidate("Théozin", 9, "AAA")
+# cand2 = Candidate("Maju", 16, "BBB")
+# cand3 = Candidate("Vergaças", 3, "CCC")
 
-print(db.candidates())
+# db.remove_all_candidates()
+# db.insert_candidate(cand1)
+# db.insert_candidate(cand2)
+# db.insert_candidate(cand3)
 
-db.close()
+# print(db.candidates())
 
-db2 = Database()
+# db.remove_candidate(cand1)
+
+# print(db.candidates())
+
+# cand2.add_vote()
+
+# db.update_votes(cand2)
+
+# print(db.candidates())
+
+# db.close()
+
+db2 = DatabaseElector()
+
+elec1 = Elector()
+elec1.add_name = "Théozin"
+elec1.add_code = 1234
+
+db2.remove_all_electors()
+db2.insert_elector(elec1)
+print(db2.electors())
+
+db2.search_elector(elec1)
+
 db2.close()
 
 

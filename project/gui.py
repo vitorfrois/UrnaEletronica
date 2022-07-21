@@ -159,7 +159,7 @@ class UrnaFrame(tk.Frame):
                 self.candidatePartyName.set("VOTO NULO")
             else:
                 self.candidateName.set("")
-                self.candidatePartyName.set("");
+                self.candidatePartyName.set("") #tinha uma virgula aqui
 
         self.candidateParty.set(self.value)
         image = Image.open(self.candidateimage_path.get())
@@ -194,6 +194,7 @@ class DBFrame(tk.Frame):
         self.name_field.delete(0, 'end')
         self.party_field.delete(0, 'end')
         self.num_field.delete(0, 'end')
+        self.cargo_field.delete(0, 'end')
         self.image_path = ""
         self.submit_text.set("Inserir")
 
@@ -209,6 +210,7 @@ class DBFrame(tk.Frame):
         if (self.name_field.get() == "" or
             self.party_field.get() == "" or
             self.num_field.get() == "" or
+            self.cargo_field.get() == "" or
             self.image_path == ""):
             self.db_info_label.set("Preencha todos os campos.")
             print("empty input")
@@ -226,6 +228,8 @@ class DBFrame(tk.Frame):
         new_candidate.add_image(self.image_path)
         new_candidate.add_name(self.name_field.get())
         new_candidate.add_number(self.num_field.get())
+        new_candidate.add_party(self.party_field.get()) #adicionando o partido
+        new_candidate.add_cargo(self.cargo_field.get()) #add cargo
         candidates_list.append(new_candidate)
         self.db_info_label.set("Candidato Inserido com Sucesso!")
         self.clear_entry()            
@@ -237,6 +241,7 @@ class DBFrame(tk.Frame):
         name = tk.Label(self, text="Nome: ")
         party = tk.Label(self, text="Partido: ")
         num = tk.Label(self, text="Número: ")
+        cargo = tk.Label(self, text="Cargo: ")
 
         #o botão para escolher a imagem do candidato
         browse_button = tk.Button(self, text="Escolher Imagem", command=self.select_file)
@@ -245,6 +250,7 @@ class DBFrame(tk.Frame):
         self.name_field = tk.Entry(self)
         self.party_field = tk.Entry(self)
         self.num_field = tk.Entry(self)
+        self.cargo_field = tk.Entry(self) #add cargo
     
         self.submit_text = tk.StringVar(self, "Inserir")
         submit = tk.Button(self, textvariable=self.submit_text, command=self.submit_candidate)
@@ -257,12 +263,14 @@ class DBFrame(tk.Frame):
         name.grid(row=1, column=0)
         party.grid(row=2, column=0)
         num.grid(row=3, column=0)
+        cargo.grid(row=4, column = 0) #grid cargo
         self.name_field.grid(row=1, column=1, ipadx="100")
         self.party_field.grid(row=2, column=1, ipadx="100")
         self.num_field.grid(row=3, column=1, ipadx="100")
-        browse_button.grid(row=4, column=1, sticky="w")
-        submit.grid(row=5, column=1)
-        db_info_label.grid(column=1, row=6, padx=(5,5))
+        self.cargo_field.grid(row=4, column=1, ipadx="100") #add cargo field
+        browse_button.grid(row=5, column=1, sticky="w")
+        submit.grid(row=6, column=1)
+        db_info_label.grid(column=1, row=7, padx=(5,5))
 
 class VotesFrame(tk.Frame):
     def __init__(self, container):

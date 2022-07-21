@@ -13,7 +13,7 @@ class Urna:
     def remove_candidate(self, candidate):
         if candidate in self.candidates:
             self.candidates.remove(candidate)
-        else: raise Exception;
+        else: raise Exception #tinha um ;
 
     def get_candidates(self):
         return self.candidates
