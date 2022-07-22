@@ -67,12 +67,14 @@ class UrnaFrame(tk.Frame):
         global total_votes
         if(self.cargos_n[self.votes_count] != len(self.value)):
             return
-        if(int(self.value) == 0):
-            total_votes += 1
+        #if(int(self.value) == 0):
+            #total_votes += 1
+        #print(total_votes)
         for candidate in candidates_list:
             if(candidate.get_number() == self.value):
                 print("novo voto")
                 candidate.add_vote()
+                total_votes += 1
 
         self.corrige_button()
         self.votes_count += 1
@@ -190,11 +192,6 @@ class UrnaFrame(tk.Frame):
                 self.candidateNumber.set("Número: " + self.value)
                 self.candidateimage_path.set("resources/pixel.png")
                 self.candidatePartyName.set("Número: ") #tinha uma virgula aqui
-
-            #self.candidateName.set("Nome: ")
-            #self.candidateNumber.set("Número: " + self.value)
-            #self.candidateimage_path.set("resources/pixel.png")
-            #self.candidatePartyName.set("Número: ") #tinha uma virgula aqui
 
         self.candidateParty.set(self.value)
         image = Image.open(self.candidateimage_path.get())
@@ -389,6 +386,7 @@ class VotesFrame(tk.Frame):
         self.table.delete(*self.table.get_children())
         for candidate in candidates_list:
             candidate_votes = candidate.get_votes()
+            print(candidate_votes)
             if(total_votes != 0):
                 votes = str(candidate_votes) + " (" + str((candidate_votes/total_votes)*100) + "%)"
             else:
