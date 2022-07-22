@@ -37,14 +37,14 @@ class UrnaFrame(tk.Frame):
         self.create_image_frame()
         #value é uma variavel que carrega o input atual da urna
         self.value = ""
-        self.cargos = ("Presidente", "Governador", "Deputado Estadual", "Deputado Federal")
-        self.cargos_n = (2, 2, 4, 4, -1)
+        self.cargos = ("Presidente", "Governador", "Deputado Estadual", "Deputado Federal", "Senador")
+        self.cargos_n = (2, 2, 5, 4, 3)
 
         self.newEleitor()
 
     #funçao que é chamada toda vez que um botao numerico é ativado
     def button_action(self, n):
-        if(len(self.value) >= self.cargos_n[votes_count] or votes_count == 4):
+        if(len(self.value) >= self.cargos_n[votes_count] or votes_count == 5):
             return
         #atualiza o valor de value
         self.value += str(n)
@@ -82,20 +82,41 @@ class UrnaFrame(tk.Frame):
 
         self.corrige_button()
         votes_count += 1
-        if(votes_count != 4):
+        if(votes_count != 5):
             self.candidateCargo.set("SEU VOTO PARA: \n" + self.cargos[votes_count])
+        else:
+            try:
+                pygame.mixer.music.load("resources/som_urna.mp3")
+                pygame.mixer.music.play(loops=0)
+            except:
+                print('erro no audio :(')
 
-        pygame.mixer.music.load("resources/som_urna.mp3")
-        pygame.mixer.music.play(loops=0)
-
-        if(votes_count == 4):
             votes_count = 0
             self.value = ""
+
+            image = Image.open("resources/FIM.png")
+            image = image.resize((400, 250))
+            tkImage = ImageTk.PhotoImage(image)
+            imageLabel = tk.Label(self.image_frame, image=tkImage)
+            imageLabel.image = tkImage
+            imageLabel.grid(column = 0, row = 0, rowspan=6, padx=(5,5), pady=(5,5))
+
+            self.candidateName.set("")
+            self.candidateCargo.set("")
+            self.candidateParty.set("")
+            self.candidateNumber.set("")
+            self.candidatePartyName.set("")
+
+            self.destroy_instructions()
+
+            self.pad_frame.destroy()
+            self.instructions_frame.destroy()
+
             self.eleitor_frame.lift()
 
     #voto em branco
     def branco_button(self):
-        if(len(self.value) != 0 or votes_count >= 4):
+        if(len(self.value) != 0 or votes_count >= 5):
             return
         self.value = "00"
         self.show_instructions()
@@ -104,8 +125,12 @@ class UrnaFrame(tk.Frame):
 
         if(self.cargos_n[votes_count] == 2):
             self.value = "00"
-        else:
+        elif(self.cargos_n[votes_count] == 3):
+            self.value = "000"
+        elif(self.cargos_n[votes_count] == 4):
             self.value = "0000"
+        else:
+            self.value = "00000"
 
     #função que cria os botões 
     def create_buttons(self):
@@ -224,8 +249,6 @@ class UrnaFrame(tk.Frame):
         submit.grid(column=0, row=2)
         self.labelElector.grid(column=0, row=3, sticky="news")
 
-
-
     def check_eleitor(self):
         print("aqui")
         for eleitor in electors_list:
@@ -302,6 +325,11 @@ class DBInsertFrame(tk.Frame):
                 self.db_info_label.set("O número do partido deve conter 4 algarismos.")
                 return
         
+        if(self.cargo_field.get() == 'Senador'):
+            if(len(num) != 3):
+                self.db_info_label.set("O número do partido deve conter 3 algarismos.")
+                return
+        
 
         new_candidate = Candidate()
         new_candidate.add_image(self.image_path)
@@ -311,7 +339,7 @@ class DBInsertFrame(tk.Frame):
         new_candidate.add_cargo(self.cargo_field.get()) #add cargo
         candidates_list.append(new_candidate)
         self.db_info_label.set("Candidato Inserido com Sucesso!")
-        self.clear_entry()            
+        self.clear_entry()
 
     #cria o frame da database
     def create_db_frame(self):
@@ -331,7 +359,7 @@ class DBInsertFrame(tk.Frame):
         self.num_field = tk.Entry(self)
         self.cargo_field = tk.StringVar()
         self.cargo_cb = ttk.Combobox(self, textvariable=self.cargo_field) #add cargo
-        self.cargo_cb['values'] = ('Presidente', 'Governador', 'Deputado Federal', 'Deputado Estadual')
+        self.cargo_cb['values'] = ('Presidente', 'Governador', 'Deputado Federal', 'Deputado Estadual' , 'Senador')
         self.cargo_cb['state'] = 'readonly'
     
         self.submit_text = tk.StringVar(self, "Inserir")
@@ -421,7 +449,7 @@ class VotesFrame(tk.Frame):
         #combo box
         self.cargo_field = tk.StringVar(self)
         self.cargo_cb = ttk.Combobox(self, textvariable=self.cargo_field)
-        self.cargo_cb['values'] = ("Presidente", 'Governador', 'Deputado Federal', 'Deputado Estadual')
+        self.cargo_cb['values'] = ("Presidente", 'Governador', 'Deputado Federal', 'Deputado Estadual', 'Senador')
         self.cargo_cb['state'] = 'readonly'
         self.cargo_cb.grid(column=0, row=0, sticky="news")
         global total_votes
