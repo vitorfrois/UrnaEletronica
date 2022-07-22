@@ -25,5 +25,5 @@ class Elector:
         return self.voted
     
     def __str__(self) -> str:
-        string = "Eleitor {}, cpf {}".format(self.name, self.code)
+        string = "Eleitor {}, cpf {}".format(self.name, self.cpf)
         return string

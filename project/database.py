@@ -4,8 +4,8 @@ from elector import Elector
 
 class DatabaseCandidates:
 
-    def __init__(self, databaseName="candidates") -> None:
-        self.conn = sqlite3.connect('db/' + databaseName + '.db')
+    def __init__(self, databaseName="db/candidates.db") -> None:
+        self.conn = sqlite3.connect(databaseName)
         self.c = self.conn.cursor()
         self.c.execute(" CREATE TABLE IF NOT EXISTS candidates (name text, number integer, image text, votes integer) ")
 
@@ -17,6 +17,12 @@ class DatabaseCandidates:
                     'number': candidate.number,
                     'image': candidate.image,
                     'votes': candidate.votes})
+
+    def open_database(self, databaseName):
+        self.conn.close()
+        self.conn = sqlite3.connect(databaseName)
+        self.c = self.conn.cursor()
+        self.c.execute(" CREATE TABLE IF NOT EXISTS candidates (name text, number integer, image text, votes integer) ")
 
     def search_candidate(self, candidate):
         self.c.execute("SELECT rowid FROM candidates WHERE name = :name AND number = :number", {'name': candidate.name, 'number': candidate.number})
@@ -63,14 +69,14 @@ class DatabaseElector:
             if not self.search_elector(elector):
                 self.c.execute("INSERT INTO electors VALUES (:name, :code)",
                     {'name': elector.name,
-                    'code': elector.code})
+                    'code': elector.cpf})
     
     def electors(self):
         self.c.execute("SELECT * FROM electors")
         return self.c.fetchall()
 
     def search_elector(self, elector):
-        self.c.execute("SELECT rowid FROM electors WHERE name = :name AND code = :code", {'name': elector.name, 'code': elector.code})
+        self.c.execute("SELECT rowid FROM electors WHERE name = :name AND code = :code", {'name': elector.name, 'code': elector.cpf})
         data = self.c.fetchone()
         if data is None:
             return False
@@ -85,8 +91,15 @@ class DatabaseElector:
         self.conn.close()
 
 
-
-
-
+if __name__ == "__main__":
+    db = DatabaseElector()
+    admin = Elector()
+    admin.add_cpf(1)
+    admin.add_name("admin")
+    db.insert_elector(admin)
+    vitor = Elector()
+    vitor.add_cpf(12797125622)
+    vitor.add_name("Vítor Amorim Fróis")
+    db.insert_elector(vitor)
 
 

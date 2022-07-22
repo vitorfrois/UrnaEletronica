@@ -13,11 +13,15 @@ candidates_list = []
 electors_list = []
 dbCandidates = DatabaseCandidates()
 dbElectors = DatabaseElector()
+total_votes = 0
+votes_count = 0
+
 
 def nada():
     pass
 
 class UrnaFrame(tk.Frame):
+    global votes_count
     def __init__(self, container):
         super().__init__(container)
 
@@ -33,7 +37,6 @@ class UrnaFrame(tk.Frame):
         self.create_image_frame()
         #value é uma variavel que carrega o input atual da urna
         self.value = ""
-        self.votes_count = 0
         self.cargos = ("Presidente", "Governador", "Deputado Estadual", "Deputado Federal")
         self.cargos_n = (2, 2, 4, 4, -1)
 
@@ -41,7 +44,7 @@ class UrnaFrame(tk.Frame):
 
     #funçao que é chamada toda vez que um botao numerico é ativado
     def button_action(self, n):
-        if(len(self.value) >= self.cargos_n[self.votes_count] or self.votes_count == 4):
+        if(len(self.value) >= self.cargos_n[votes_count] or votes_count == 4):
             return
         #atualiza o valor de value
         self.value += str(n)
@@ -52,7 +55,7 @@ class UrnaFrame(tk.Frame):
             if(candidate.get_number() == self.value):
                 self.update_image_frame(candidate)
 
-        if(len(self.value) == self.cargos_n[self.votes_count]):
+        if(len(self.value) == self.cargos_n[votes_count]):
             self.show_instructions()
         else:
             self.destroy_instructions()
@@ -68,7 +71,8 @@ class UrnaFrame(tk.Frame):
     def confirma_button(self):
         pygame.mixer.init()
         global total_votes
-        if(self.cargos_n[self.votes_count] != len(self.value)):
+        global votes_count
+        if(self.cargos_n[votes_count] != len(self.value)):
             return
         for candidate in candidates_list:
             if(candidate.get_number() == self.value):
@@ -77,33 +81,28 @@ class UrnaFrame(tk.Frame):
                 total_votes += 1
 
         self.corrige_button()
-        self.votes_count += 1
-        if(self.votes_count != 4):
-            self.candidateCargo.set("SEU VOTO PARA: " + self.cargos[self.votes_count])
+        votes_count += 1
+        if(votes_count != 4):
+            self.candidateCargo.set("SEU VOTO PARA: \n" + self.cargos[votes_count])
 
         pygame.mixer.music.load("resources/som_urna.mp3")
         pygame.mixer.music.play(loops=0)
 
-        if(self.votes_count == 4):
-            self.votes_count = 0
-            self.value = ""
-            self.eleitor_frame.lift()
-
-        if(self.votes_count == 4):
-            self.votes_count = 0
+        if(votes_count == 4):
+            votes_count = 0
             self.value = ""
             self.eleitor_frame.lift()
 
     #voto em branco
     def branco_button(self):
-        if(len(self.value) != 0 or self.votes_count >= 4):
+        if(len(self.value) != 0 or votes_count >= 4):
             return
         self.value = "00"
         self.show_instructions()
         self.candidateName.set("VOTO EM BRANCO")
         print("branco")
 
-        if(self.cargos_n[self.votes_count] == 2):
+        if(self.cargos_n[votes_count] == 2):
             self.value = "00"
         else:
             self.value = "0000"
@@ -180,7 +179,7 @@ class UrnaFrame(tk.Frame):
         candidateNumberLabel.grid(column=0, row=8, sticky="w", padx=(5,5))
         candidatePartyName = tk.Label(self.image_frame, textvariable=self.candidatePartyName)
         candidatePartyName.grid(column=0, row=9, sticky="w", padx=(5,5))
-        self.candidateCargo.set("SEU VOTO PARA: Presidente")
+        self.candidateCargo.set("SEU VOTO PARA: \nPresidente")
         self.candidateName.set("Nome: ")
         self.candidateNumber.set("Número: ")
         self.candidateimage_path.set("resources/pixel.png")
@@ -188,16 +187,21 @@ class UrnaFrame(tk.Frame):
 
     #atualiza o frame da imagem
     def update_image_frame(self, candidate:Candidate()=None):
-        if(candidate != None and len(self.value) == self.cargos_n[self.votes_count]):
+        if(candidate != None and len(self.value) == self.cargos_n[votes_count] and self.cargos[votes_count] == candidate.get_cargo()):
             self.candidateName.set("Nome: " + candidate.get_name())
             self.candidateNumber.set("Número: " + candidate.get_number())
             self.candidateimage_path.set(candidate.get_image())
             self.candidatePartyName.set("Partido: " + candidate.get_party())
+        elif(len(self.value) == self.cargos_n[votes_count]):
+            self.candidateName.set("VOTO NULO")
+            self.candidateNumber.set("Número: " + self.value)
+            self.candidateimage_path.set("resources/pixel.png")
+            self.candidatePartyName.set("NÚMERO ERRADO")
         else:
             self.candidateName.set("Nome: ")
             self.candidateNumber.set("Número: " + self.value)
             self.candidateimage_path.set("resources/pixel.png")
-            self.candidatePartyName.set("Número: ") #tinha uma virgula aqui
+            self.candidatePartyName.set("Número: ")
 
         self.candidateParty.set(self.value)
         image = Image.open(self.candidateimage_path.get())
@@ -213,22 +217,24 @@ class UrnaFrame(tk.Frame):
         cpf = tk.Label(self.eleitor_frame, text="CPF: ")
         self.cpf_field = tk.Entry(self.eleitor_frame)
         submit = tk.Button(self.eleitor_frame, text="Entre", command=self.check_eleitor)
-        cpf.grid(column=0, row=0)
-        self.cpf_field.grid(column=0, row=1)
+        self.label_elector_text = tk.StringVar(self, "Insira o CPF do votante")
+        self.labelElector = tk.Label(self.eleitor_frame, textvariable=self.label_elector_text)
+        cpf.grid(column=0, row=0, sticky="news")
+        self.cpf_field.grid(column=0, row=1, sticky="news")
         submit.grid(column=0, row=2)
-        self.labelElector = tk.Label(self.eleitor_frame, textvariable="")
-        self.labelElector.grid(column=0, row=3)
+        self.labelElector.grid(column=0, row=3, sticky="news")
+
 
 
     def check_eleitor(self):
-        for eleitor in eleitor_list:
+        print("aqui")
+        for eleitor in electors_list:
             print(eleitor.get_cpf())
             print(self.cpf_field.get())
             if eleitor.get_cpf() == int(self.cpf_field.get()):
                 if(eleitor.get_voted()):
-                     self.labelElector.set("Essa pessoa já votou.")
+                     self.label_elector_text.set("Essa pessoa já votou.")
                      return
-                eleitor_list.remove(eleitor)
                 self.pad_frame.lift()
                 self.image_frame.lift()
                 self.instructions_frame.lift()
@@ -401,26 +407,41 @@ class VotesFrame(tk.Frame):
         super().__init__(container)
         self.grid(column=0, row=0, sticky="news")
         self.table = ttk.Treeview(self)
-        self.table.grid()
+        self.table.grid(column=0, row=2, sticky="news")
         self.table['columns'] = ('Candidato', 'Votos')
         self.table.column("#0", width=0, stretch=tk.NO)
         self.table.column("Candidato")
         self.table.column("Votos")
         self.table.heading("Candidato", text="Candidato")
         self.table.heading("Votos", text="Votos")
+        
+        #botao para atualizar as listas
+        self.button = tk.Button(self, text="Atualizar", command=self.atualizar)
+        self.button.grid(column=0, row=1, sticky="news")
+        #combo box
+        self.cargo_field = tk.StringVar(self)
+        self.cargo_cb = ttk.Combobox(self, textvariable=self.cargo_field)
+        self.cargo_cb['values'] = ("Presidente", 'Governador', 'Deputado Federal', 'Deputado Estadual')
+        self.cargo_cb['state'] = 'readonly'
+        self.cargo_cb.grid(column=0, row=0, sticky="news")
         global total_votes
-        total_votes = 0
     
     def create_vote_frame(self):
         self.table.delete(*self.table.get_children())
         for candidate in candidates_list:
-            candidate_votes = candidate.get_votes()
-            if(total_votes != 0):
-                votes = str(candidate_votes) + " (" + str((candidate_votes/total_votes)*100) + "%)"
-            else:
-                votes = total_votes
-            self.table.insert(parent='', index='end', text='', values=(candidate.get_name() + ' (' + candidate.get_cargo() + ')', votes))        
+            print(candidate.get_cargo())
+            print(self.cargo_field.get())
+            if(candidate.get_cargo() == self.cargo_field.get()):
+                print("aqui")
+                candidate_votes = candidate.get_votes()
+                if(total_votes != 0):
+                    votes = str(candidate_votes) + " (" + str((candidate_votes/total_votes)*100) + "%)"
+                else:
+                    votes = total_votes
+                self.table.insert(parent='', index='end', text='', values=(candidate.get_name() + ' (' + candidate.get_cargo() + ')', votes))        
 
+    def atualizar(self):
+        self.create_vote_frame()
 
 
 class WelcomeFrame(tk.Frame):
@@ -475,9 +496,9 @@ class GUI(tk.Tk):
         
         #menu de gerenciamento de arquivos
         menu_file = tk.Menu(menubar, tearoff=0)
-        menu_file.add_command(label="Novo", command=newElection)
-        menu_file.add_command(label="Abrir", command=openElection)
-        menu_file.add_command(label="Salvar", command=saveElection)         
+        menu_file.add_command(label="Novo", command=self.newElection)
+        menu_file.add_command(label="Abrir", command=self.openElection)
+        menu_file.add_command(label="Salvar", command=self.saveElection)         
 
         #menu de opções
         menu_options = tk.Menu(menubar, tearoff=0)
@@ -509,31 +530,49 @@ class GUI(tk.Tk):
         bolsonaro.add_name("Bolsonaro")
         bolsonaro.add_number("22")
         candidates_list.append(bolsonaro)
+        eleitor = Elector()
+        eleitor.add_cpf(1)
+        eleitor.add_name("admin")
+        electors_list.append(eleitor)
 
-def newElection():
-    dbCandidates.remove_all_candidates()
-    dbElectors.remove_all_electors()
-    global candidates_list
-    candidates_list = []
-    global electors_list
-    electors_list = []
+    def newElection(self):
+        dbCandidates.remove_all_candidates()
+        dbElectors.remove_all_electors()
+        global candidates_list
+        candidates_list = []
+        # global electors_list
+        # electors_list = []
 
-def openElection():
-    newElection()
+    def select_file(self):
+        filetypes = (
+            ('Arquivos de database', '*.db'),
+            ('All files', '*.*')
+        )
 
-    global candidates_list
-    global electors_list
+        database_path = fd.askopenfilename(
+            title='Escolha um arquivo: ',
+            initialdir='.',
+            filetypes=filetypes
+        )
+        return database_path
 
-    candidates_list = dbCandidates.candidates()
-    electors_list =  dbElectors.electors()
+    def openElection(self):
+        database_path = self.select_file()
+        dbCandidates.open_database(database_path)
+        global candidates_list
+        global electors_list
 
-def saveElection():
-    for candidate in candidates_list:
-        dbCandidates.insert_candidate(candidate)
-    print(dbCandidates.candidates())
-    for elector in electors_list:
-        dbElectors.insert_elector(elector)
-    print(dbElectors.electors())
+        candidates_list = dbCandidates.candidates()
+        electors_list =  dbElectors.electors()
+        total_votes = 0
+
+    def saveElection(self):
+        for candidate in candidates_list:
+            dbCandidates.insert_candidate(candidate)
+        print(dbCandidates.candidates())
+        for elector in electors_list:
+            dbElectors.insert_elector(elector)
+        print(dbElectors.electors())
 
 
 if __name__ == "__main__":
