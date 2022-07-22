@@ -24,3 +24,6 @@ class Elector:
     def get_voted(self):
         return self.voted
     
+    def __str__(self) -> str:
+        string = "Eleitor {}, cpf {}".format(self.name, self.code)
+        return string

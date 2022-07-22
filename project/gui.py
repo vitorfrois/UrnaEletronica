@@ -4,12 +4,15 @@ from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 from tkinter import ttk
 import pygame
+from database import DatabaseElector, DatabaseCandidates
 
 from candidate import *
 from elector import *
 
 candidates_list = []
-eleitor_list = []
+electors_list = []
+dbCandidates = DatabaseCandidates()
+dbElectors = DatabaseElector()
 
 def nada():
     pass
@@ -67,12 +70,11 @@ class UrnaFrame(tk.Frame):
         global total_votes
         if(self.cargos_n[self.votes_count] != len(self.value)):
             return
-        if(int(self.value) == 0):
-            total_votes += 1
         for candidate in candidates_list:
             if(candidate.get_number() == self.value):
                 print("novo voto")
                 candidate.add_vote()
+                total_votes += 1
 
         self.corrige_button()
         self.votes_count += 1
@@ -87,6 +89,11 @@ class UrnaFrame(tk.Frame):
             self.value = ""
             self.eleitor_frame.lift()
 
+        if(self.votes_count == 4):
+            self.votes_count = 0
+            self.value = ""
+            self.eleitor_frame.lift()
+
     #voto em branco
     def branco_button(self):
         if(len(self.value) != 0 or self.votes_count >= 4):
@@ -95,6 +102,11 @@ class UrnaFrame(tk.Frame):
         self.show_instructions()
         self.candidateName.set("VOTO EM BRANCO")
         print("branco")
+
+        if(self.cargos_n[self.votes_count] == 2):
+            self.value = "00"
+        else:
+            self.value = "0000"
 
     #função que cria os botões 
     def create_buttons(self):
@@ -463,9 +475,9 @@ class GUI(tk.Tk):
         
         #menu de gerenciamento de arquivos
         menu_file = tk.Menu(menubar, tearoff=0)
-        menu_file.add_command(label="Novo", command=nada)
-        menu_file.add_command(label="Abrir", command=nada)
-        menu_file.add_command(label="Salvar", command=nada)    
+        menu_file.add_command(label="Novo", command=newElection)
+        menu_file.add_command(label="Abrir", command=openElection)
+        menu_file.add_command(label="Salvar", command=saveElection)         
 
         #menu de opções
         menu_options = tk.Menu(menubar, tearoff=0)
@@ -497,17 +509,33 @@ class GUI(tk.Tk):
         bolsonaro.add_name("Bolsonaro")
         bolsonaro.add_number("22")
         candidates_list.append(bolsonaro)
-        eleitor = Elector()
-        eleitor.add_cpf(12797125622)
-        eleitor.add_name("Vítor Fróis")
-        eleitor_list.append(eleitor)
 
+def newElection():
+    dbCandidates.remove_all_candidates()
+    dbElectors.remove_all_electors()
+    global candidates_list
+    candidates_list = []
+    global electors_list
+    electors_list = []
+
+def openElection():
+    newElection()
+
+    global candidates_list
+    global electors_list
+
+    candidates_list = dbCandidates.candidates()
+    electors_list =  dbElectors.electors()
+
+def saveElection():
+    for candidate in candidates_list:
+        dbCandidates.insert_candidate(candidate)
+    print(dbCandidates.candidates())
+    for elector in electors_list:
+        dbElectors.insert_elector(elector)
+    print(dbElectors.electors())
 
 
 if __name__ == "__main__":
     app = GUI()
     app.mainloop()        
-
-
-# canvas = tk.Canvas(root, width=300, height=600)
-# canvas.grid(columnspan=3, rowspan=)

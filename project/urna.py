@@ -2,8 +2,7 @@ from candidate import Candidates
 
 class Urna:
     
-    def __init__(self, electionName) -> None:
-        self.electionName = electionName # nome da eleição (ideia é o programa armazenar dados de eleições diferentes)
+    def __init__(self) -> None:
         self.number = "" # self.number é uma variavel que carrega o input atual da urna
         self.candidates = [] #lista de candidados
 
@@ -13,7 +12,7 @@ class Urna:
     def remove_candidate(self, candidate):
         if candidate in self.candidates:
             self.candidates.remove(candidate)
-        else: raise Exception #tinha um ;
+        else: raise Exception
 
     def get_candidates(self):
         return self.candidates
