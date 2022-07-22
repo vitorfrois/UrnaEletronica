@@ -82,6 +82,11 @@ class UrnaFrame(tk.Frame):
         pygame.mixer.music.load("resources/som_urna.mp3")
         pygame.mixer.music.play(loops=0)
 
+        if(self.votes_count == 4):
+            self.votes_count = 0
+            self.value = ""
+            self.eleitor_frame.lift()
+
     #voto em branco
     def branco_button(self):
         if(len(self.value) != 0 or self.votes_count >= 4):
